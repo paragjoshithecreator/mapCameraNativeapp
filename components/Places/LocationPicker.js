@@ -7,14 +7,14 @@ import {
 } from "expo-location";
 import OutLinedButton from "../ui/OutLinedButton";
 import { Colors } from "../../constants/colors";
-import { getMapPreview } from "../../util/Location";
+import { getAddress, getMapPreview } from "../../util/Location";
 import {
   useNavigation,
   useRoute,
   useIsFocused,
 } from "@react-navigation/native";
 
-function LocationPicker() {
+function LocationPicker({ onPickLocation }) {
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -33,6 +33,19 @@ function LocationPicker() {
       setPickedLocation(mapPickedLocation);
     }
   }, [route, isFocused]);
+
+  useState(() => {
+    async function handleLocation() {
+      if (pickedLocation) {
+        const address = await getAddress(
+          pickedLocation.lat,
+          pickedLocation.lng
+        );
+        onPickLocation({ ...pickedLocation, address: address });
+      }
+    }
+    handleLocation();
+  }, [pickedLocation, onPickLocation]);
 
   async function verifyPermissions() {
     if (
